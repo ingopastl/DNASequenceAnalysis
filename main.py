@@ -1,6 +1,6 @@
 import io
 import sys
-
+from frames import MotifFrame
 
 # Transformar uma string de DNA em uma string de RNA
 def get_rna(dna):
@@ -53,7 +53,7 @@ def get_codon_percentage(rna):
             frequency[codon] += 1
             codon = ""
 
-    total_c = len(rna)/3 - len(rna) % 3  # Total de codons na string
+    total_c = (len(rna) - (len(rna) % 3))/3  # Total de codons na string
 
     percentage = {"UUU": 0, "UUC": 0, "UUA": 0, "UUG": 0,
                   "UCU": 0, "UCC": 0, "UCA": 0, "UCG": 0,
@@ -78,6 +78,54 @@ def get_codon_percentage(rna):
     return percentage
 
 
+def get_property_percentage(c_percentage):
+    codon_map = {"UUU": "F", "UUC": "F", "UUA": "L", "UUG": "L",
+                 "UCU": "S", "UCC": "S", "UCA": "S", "UCG": "S",
+                 "UAU": "Y", "UAC": "Y", "UAA": "-", "UAG": "-",
+                 "UGU": "C", "UGC": "C", "UGA": "-", "UGG": "W",
+                 "CUU": "L", "CUC": "L", "CUA": "L", "CUG": "L",
+                 "CCU": "P", "CCC": "P", "CCA": "P", "CCG": "P",
+                 "CAU": "H", "CAC": "H", "CAA": "Q", "CAG": "Q",
+                 "CGU": "R", "CGC": "R", "CGA": "R", "CGG": "R",
+                 "AUU": "I", "AUC": "I", "AUA": "I", "AUG": "M",
+                 "ACU": "T", "ACC": "T", "ACA": "T", "ACG": "T",
+                 "AAU": "N", "AAC": "N", "AAA": "K", "AAG": "K",
+                 "AGU": "S", "AGC": "S", "AGA": "R", "AGG": "R",
+                 "GUU": "V", "GUC": "V", "GUA": "V", "GUG": "V",
+                 "GCU": "A", "GCC": "A", "GCA": "A", "GCG": "A",
+                 "GAU": "D", "GAC": "D", "GAA": "E", "GAG": "E",
+                 "GGU": "G", "GGC": "G", "GGA": "G", "GGG": "G"}
+
+    properties = {"F": ("Aromatic", "HYDROPHOBIC"),
+                  "L": ("Aliphatic", "HYDROPHOBIC"),
+                  "S": ("tiny", "SMALL", "POLAR")
+                  }
+
+
+def get_motifs(rna, motifs_len):
+    motif = ""
+    motif_frame_list = []
+    for i in range(0, len(rna) - (motifs_len - 1)):
+        motif = rna[i:i + motifs_len]
+        flag = 0
+
+        for object in motif_frame_list:
+            if (object.motif == motif):
+                object.initial_indexes.append(i)
+                flag = 1
+
+        if (flag == 0):
+            motif_frame_list.append(MotifFrame(motif, i))
+
+    return motif_frame_list
+
+
+def dont_know(rna, min_len, max_len):
+    motif_list = []
+    for i in range(min_len, max_len + 1):
+        motif_list += get_motifs(rna, i)
+    return motif_list
+
 def main():
     file = io.open("ZIKA_Vírus_Genoma Completo.txt", "r")
     dna = ""
@@ -87,8 +135,16 @@ def main():
 
     rna = get_rna(dna)
     rna_reverse = rna[:: -1]  # Inverte a string de rna
+    print(rna)
     print(get_cg_percentage(rna))
-    get_codon_percentage(rna)
+    codon_per = get_codon_percentage(rna)
+    get_property_percentage(codon_per)
+
+    motifs = dont_know(rna, 3, 12)
+
+    file = io.open("motifs.txt", "w")
+    for object in motifs:
+        file.write(str(object.motif) + str(object.initial_indexes) + "\n")
 
 
 if __name__ == "__main__":
