@@ -1,6 +1,5 @@
 import io
 import sys
-from frames import MotifFrame
 from frames import CodonFrame
 
 # Transformar uma string de DNA em uma string de RNA
@@ -204,9 +203,16 @@ def main():
     amino_frames = get_six_amino_frames(rna)
 
     for i in range(0, len(amino_frames)):
-        print("Frame " + str(i + 1))
+        print("-----Frame " + str(i + 1) + "-----")
         for j in range(0, len(amino_frames[i])):
             print(amino_frames[i][j])
+
+    print("\n")
+
+    for i in range(0, len(codon_frames)):
+        print("-----Frame " + str(i + 1) + "-----")
+        for j in range(0, len(codon_frames[i])):
+            print(codon_frames[i][j])
 
 if __name__ == "__main__":
     main()
